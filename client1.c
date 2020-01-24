@@ -53,8 +53,15 @@ void draw_rectangle (int x, int y, int w, int h) {
 	for (int i=0;i<w;i++) addch('=');
 }
 
+void draw_player (char *info, int offset_x, int offset_y) {
+	char name[10], cmd[10];
+	int hp, max_hp, atk, a_up, target, wait;
+	int a_ct, s_ct, d_ct, z_ct, c_ct;
+	int wait_buf, stun_debuff;
+}
+
 void draw_player (Player p, int offset_x, int offset_y) {
-	draw_rectangle(offset_x, offset_y, 25, 8);
+	draw_rectangle(offset_x, offset_y, COLS/2, 8);
 	/* プレイヤー情報 */
 	mvprintw(offset_x, offset_y+2, "[ PLAYER DATA ]");
 	mvprintw(offset_x+1, offset_y+2, "NAME : %s", p.name);
@@ -66,7 +73,7 @@ void draw_player (Player p, int offset_x, int offset_y) {
 }
 
 void draw_enemy (char* info,  int offset_x, int offset_y) {
-	draw_rectangle(offset_x, offset_y, 25, 6);
+	draw_rectangle(offset_x, offset_y, COLS/2-1, 6);
 	char name[10], cmd[10];
 	int hp, max_hp, wait;
 
@@ -166,8 +173,8 @@ int main (void) {
 		clear();
 		//printw("receive msg : %s\n", p_info);
 		update_player(&player, p_info);
-		draw_player(player, 0, 0);
-		draw_enemy(e_info, 0, 30);
+		draw_player(&player, 0, 0);
+		draw_enemy(e_info, 0, COLS/2+1);
 		draw_info(i_info, LINES-7, 0);
 		move(0, 0);
 	}
