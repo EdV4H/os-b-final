@@ -10,6 +10,7 @@
 #include <arpa/inet.h>
 #include <unistd.h>
 #include <string.h>
+#include <ncurses.h>
 
 #include "game.h"
 
@@ -38,11 +39,18 @@ void add_info_msg (Information* info, char* msg);
 char* gen_info_msg (Information* info);
 char* gen_player_msg (Character* p);
 
+int check_winner (Character p[PLAYER_NUM]);
 
 void update_player (Character p[PLAYER_NUM], int p_index, char cmd, Information* info);
 int damage (Character* attacker, Character* target, double magnification);
 void accept_player (int server_sockfd, int index, SocketInfo* s, Character* p);
 //void init_player (Character* p, char* info);
 int init_server (SocketInfo* s);
+
+void draw_rectangle(int x, int y, int w, int h);
+void draw_player(Character* p, int x, int y, int w, int h);
+int draw_information(char* info, int x, int y, int w, int h);
+
+void init_curses ();
 
 #endif

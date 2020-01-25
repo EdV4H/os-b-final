@@ -2,6 +2,9 @@
 #define _GAME_h_
 
 /*  必要な定数を定義する  */
+#define PLAYER_HEIGHT 12
+#define ENEMY_HEIGHT 9
+
 #define SEC_OF_TURN 1
 #define I_INFO_SIZE 1001
 #define P_INFO_SIZE 101
@@ -9,6 +12,8 @@
 #define BASE_MAGNIFICATION 1.0
 #define STUN_MAGNIFICATION 0.3
 #define EX_MAGNIFICATION 5.0
+
+#define END_MSG "[ *** GAME END *** ]"
 
 /*  バフ情報  */
 typedef struct {
@@ -48,7 +53,7 @@ typedef enum {
 typedef struct {
     char name[10], cmd[10];
     int id, hp, max_hp, atk;
-    int target, wait, stun, fever, fever_time;
+    int target, wait, stun, fever, fever_time, dead;
     int cool_time[6];
     Buff buff_atk, buff_wait;
 } Character;

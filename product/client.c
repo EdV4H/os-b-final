@@ -18,8 +18,8 @@ int main()
 int game_loop (SocketInfo* s, Character* player) {
 	init_curses();
 
-	int rc, e_num;
-	char key, p_info[101], e_info[101], i_info[1001];
+	int endflg=0, rc, e_num;
+	char key, p_info[101], e_info[101], i_info[1001], msg[50];
 	Character *enemys;
 	Buffer buffer;
 	buffer.index = 0;
@@ -51,7 +51,7 @@ int game_loop (SocketInfo* s, Character* player) {
 	draw_information(i_info, PLAYER_HEIGHT, 0, COLS/2, LINES-PLAYER_HEIGHT);
 	move(0,0);
 
-	while (1) {
+	while (endflg == 0) {
 		for (int i=0; i<buffer.len; i++) if (get_key(&buffer)=='q') break;
 		/*  キー情報を出力  */
 		key = put_key(&buffer);
@@ -67,7 +67,7 @@ int game_loop (SocketInfo* s, Character* player) {
 		/*  敵情報を取得する  */
 		for (int i=0; i<e_num; i++) {
 			rc = read(s->sockfd, e_info, 100); e_info[rc] = '\0';
-			update_enemy(&(enemys[i]), e_info);
+			update_player(&(enemys[i]), e_info);
 		}
 
 		/*  画面に情報を描画する  */
@@ -78,9 +78,13 @@ int game_loop (SocketInfo* s, Character* player) {
 			if (i >= player->id) id = i+1;
 			draw_enemy(&(enemys[i]), id, ENEMY_HEIGHT*i, COLS/2+1, COLS/2-1, ENEMY_HEIGHT);
 		}
-		draw_information(i_info, PLAYER_HEIGHT, 0, COLS/2, LINES-PLAYER_HEIGHT);
+		endflg = draw_information(i_info, PLAYER_HEIGHT, 0, COLS/2, LINES-PLAYER_HEIGHT);
 		move(0,0);
 	}
+
+	/*  ユーザの終了待ち  */
+	timeout(-1);
+	getch();
 
 	endwin(); //curses
 }
@@ -138,6 +142,7 @@ void draw_player(Character* p, int x, int y, int w, int h, Buffer* buf) {
 	mvprintw(x+2, y+w-3-7, "]%3d/%3d", p->hp, p->max_hp);
 	mvprintw(x+3, y+2, "ATK : %d", p->atk);
 	mvprintw(x+4, y+2, "STATUS : ");
+	if (p->dead == 1) printw("DEAD");
 	if (p->stun > 0) printw("STUNNED!! ");
 	if (p->fever == 1) printw("FEVER!!! ");
 	if (p->buff_atk.level > 0) printw("A_UP*%d ", p->buff_atk.level);
@@ -175,7 +180,7 @@ void draw_enemy(Character* e, int index, int x, int y, int w, int h) {
 	for (int i=0; i<(e->wait); i++) mvaddch(x+7, y+2+i, '#');
 }
 
-void draw_information(char* info, int x, int y, int w, int h) {
+int draw_information(char* info, int x, int y, int w, int h) {
 	char msg[20][50];
 	sscanf(info, "%[^,],%[^,],%[^,],%[^,],%[^,],%[^,],%[^,],%[^,],%[^,],%[^,],%[^,],%[^,],%[^,],%[^,],%[^,],%[^,],%[^,],%[^,],%[^,],%[^,],",
 			msg[0],msg[1],msg[2],msg[3],msg[4],msg[5],
@@ -188,6 +193,10 @@ void draw_information(char* info, int x, int y, int w, int h) {
 	mvprintw(x, y+2, "[ INFORMATION ]");
 	int len = h-2; if (len > 20) len = 20;
 	for (int i=0; i<len; i++) mvprintw(x+1+i, y+2, "%s", msg[i]);
+
+	/*  終了確認  */
+	if (strcmp(msg[0], END_MSG)==0) return 1;
+	else return 0;
 }
 
 void init_character (Character* c) {
@@ -208,6 +217,7 @@ void init_character (Character* c) {
 	c->buff_wait.amount = 1;
 	c->buff_wait.level = 0;
 	c->buff_wait.time = 0;
+	c->dead = 0;
 }
 
 void init_player (Character* p) {
@@ -231,7 +241,7 @@ void init_player (Character* p) {
 }
 
 void update_player (Character* p, char* info) {
-	sscanf(info, "%s %d %d %d %d %d %d %s %d %d %d %d %d %d %d %d %d %d",
+	sscanf(info, "%s %d %d %d %d %d %d %s %d %d %d %d %d %d %d %d %d %d %d",
 			p->name,
 			&(p->hp), &(p->max_hp),
 			&(p->atk),
@@ -243,7 +253,8 @@ void update_player (Character* p, char* info) {
 			&(p->cool_time[0]),&(p->cool_time[1]),&(p->cool_time[2]),
 			&(p->cool_time[3]),&(p->cool_time[4]),&(p->cool_time[5]),
 			&(p->fever_time),
-			&(p->buff_atk.level), &(p->buff_wait.level)
+			&(p->buff_atk.level), &(p->buff_wait.level),
+			&(p->dead)
 	);
 }
 

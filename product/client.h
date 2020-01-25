@@ -15,8 +15,6 @@
 #include "game.h"
 
 /*  必要な定数を定義する  */
-#define PLAYER_HEIGHT 12
-#define ENEMY_HEIGHT 9
 
 /*  必要な構造体を定義する  */
 typedef struct {
@@ -40,7 +38,7 @@ char put_key (Buffer* buf);
 void draw_rectangle(int x, int y, int w, int h);
 void draw_player(Character* p, int x, int y, int w, int h, Buffer* buf);
 void draw_enemy(Character* e, int index, int x, int y, int w, int h);
-void draw_information(char* info, int x, int y, int w, int h);
+int draw_information(char* info, int x, int y, int w, int h);
 
 void init_character (Character* c);
 void init_player (Character* p);
