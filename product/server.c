@@ -155,7 +155,7 @@ void update_player (Character p[PLAYER_NUM], int p_index, char cmd, Information*
 		if (strcmp(p[p_index].cmd, "DEFENCE")==0) {
 			// sprintf(msg, "[DEFENCE] %s", p[p_index].name);
 			// add_info_msg(info, msg);
-			for (int i=0; i<15; i++)  add_info_msg(info, "debug");
+			//for (int i=0; i<15; i++)  add_info_msg(info, "debug");
 		}
 		if (strcmp(p[p_index].cmd, "ZONE")==0) {
 			p[p_index].buff_wait.level++;
